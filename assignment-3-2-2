@@ -149,14 +149,6 @@ best_value = float(cell_mean.min())
 variance_across_socks = cell_mean.unstack().var(axis=1).sort_values()
 
 
-#  診斷（常態/等變異；參考用）
-
-df_ = df.join(cell_mean.rename("cell_mean"), on=["shoe", "sock"])
-resid = df_["time"] - df_["cell_mean"]
-W, p_sw = shapiro(resid)
-Wlv, p_lv = levene(*[g["time"].values for _, g in df.groupby(["shoe","sock"])], center="median")
-
-
 # 摘要報告
 
 with open(OUTDIR / "summary_report_3-2_noregression.txt", "w", encoding="utf-8") as f:
@@ -174,8 +166,7 @@ with open(OUTDIR / "summary_report_3-2_noregression.txt", "w", encoding="utf-8")
     f.write(f"[Best combo] Shoe {best_combo[0]} × Sock {best_combo[1]} = {best_value:.2f}\n\n")
     f.write("[Per-shoe variance across socks (lower=more robust)]\n")
     f.write(variance_across_socks.round(4).to_string() + "\n\n")
-    f.write(f"[Diagnostics] Shapiro-Wilk p={p_sw:.4f}; Levene p={p_lv:.4f}\n")
-
+    
 print("Saved to:", OUTDIR)
 print(" - main_effect_shoe.png")
 print(" - main_effect_sock.png")
